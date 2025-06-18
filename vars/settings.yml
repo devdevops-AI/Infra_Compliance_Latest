@@ -7,3 +7,32 @@ settings:
     check_command: "systemctl is-enabled firewalld"
     expected_pattern: '^enabled$'
     remediation_command: "systemctl enable --now firewalld"
+  - name: Ensure gpgcheck is globally activated
+    check_command: "grep -E '^gpgcheck=1' /etc/dnf/dnf.conf"
+    expected_pattern: '^gpgcheck=1$'
+    remediation_command: "sed -i 's/^gpgcheck=.*/gpgcheck=1/' /etc/dnf/dnf.conf"
+
+  - name: Ensure chrony is running and enabled
+    check_command: "systemctl is-enabled chronyd"
+    expected_pattern: '^enabled$'
+    remediation_command: "dnf install -y chrony && systemctl enable --now chronyd"
+
+  - name: Ensure SELinux is enforcing
+    check_command: "getenforce"
+    expected_pattern: '^Enforcing$'
+    remediation_command: "setenforce 1 && sed -i 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config"
+
+  - name: Ensure auditd service is enabled
+    check_command: "systemctl is-enabled auditd"
+    expected_pattern: '^enabled$'
+    remediation_command: "systemctl enable --now auditd"
+
+  - name: Ensure sudo commands use pty
+    check_command: "grep -E '^Defaults\s+use_pty' /etc/sudoers"
+    expected_pattern: '^Defaults\s+use_pty'
+    remediation_command: "echo 'Defaults use_pty' >> /etc/sudoers"
+
+  - name: Ensure /etc/passwd permissions are configured
+    check_command: "stat -c %a /etc/passwd"
+    expected_pattern: '^644$'
+    remediation_command: "chmod 644 /etc/passwd"
