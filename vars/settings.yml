@@ -1,0 +1,9 @@
+settings:
+  - name: Ensure SSH root login is disabled
+    check_command: "grep -E '^PermitRootLogin' /etc/ssh/sshd_config"
+    expected_pattern: '^PermitRootLogin\s+no'
+    remediation_command: "sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && systemctl restart sshd"
+  - name: Ensure firewalld is enabled
+    check_command: "systemctl is-enabled firewalld"
+    expected_pattern: '^enabled$'
+    remediation_command: "systemctl enable --now firewalld"

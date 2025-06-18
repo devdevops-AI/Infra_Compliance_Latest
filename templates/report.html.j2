@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Compliance Report</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .pass { background-color: #d4edda; }
+        .fail { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Compliance Report</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Setting</th>
+                <th>Status</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in results %}
+            <tr class="{{ 'pass' if item.compliant else 'fail' }}">
+                <td>{{ item.name }}</td>
+                <td>{{ 'PASS' if item.compliant else 'FAIL' }}</td>
+                <td>{{ item.msg }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
