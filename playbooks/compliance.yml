@@ -1,0 +1,35 @@
+---
+- name: Compliance check and remediation
+  hosts: all
+  become: yes
+  vars_files:
+    - ../vars/settings.yml
+  vars:
+    results: []
+  tasks:
+    - name: Loop through settings
+      block:
+        - name: Run check command
+          ansible.builtin.shell: "{{ item.check_command }}"
+          register: check_result
+          changed_when: false
+
+        - name: Determine compliance
+          ansible.builtin.set_fact:
+            compliant: "{{ check_result.stdout is search(item.expected_pattern) }}"
+
+        - name: Remediate if necessary
+          ansible.builtin.shell: "{{ item.remediation_command }}"
+          when: not compliant
+
+        - name: Append result
+          ansible.builtin.set_fact:
+            results: "{{ results + [ {'name': item.name, 'compliant': compliant, 'msg': check_result.stdout} ] }}"
+      loop: "{{ settings }}"
+
+    - name: Generate HTML report
+      ansible.builtin.template:
+        src: ../templates/report.html.j2
+        dest: compliance_report.html
+      vars:
+        results: "{{ results }}"
